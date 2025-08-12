@@ -18,6 +18,9 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include <zmk/usb.h>
 #include <zmk/wpm.h>
 
+// from peripheral
+#include <zmk/split/bluetooth/peripheral.h>
+
 #include "battery.h"
 #include "layer.h"
 #include "output.h"
