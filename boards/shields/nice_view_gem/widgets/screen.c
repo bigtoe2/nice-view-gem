@@ -108,7 +108,7 @@ ZMK_SUBSCRIPTION(widget_battery_status, zmk_usb_conn_state_changed);
 // peripheral battery status
 static void set_peripheral_battery_status(struct zmk_widget_screen *widget,
                                           struct battery_status_state state) {
-    widget->state.battery = state.level; // Needs field in struct
+    widget->state_peripheral.battery = state.level; // Needs field in struct
     draw_top(widget->obj, widget->cbuf, &widget->state, &widget->state_peripheral);
 }
 
