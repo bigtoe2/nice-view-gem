@@ -31,13 +31,14 @@ static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
  * Draw buffers
  **/
 
-static void draw_top(lv_obj_t *widget, lv_color_t cbuf[], const struct status_state *state) {
+static void draw_top(lv_obj_t *widget, lv_color_t cbuf[], const struct status_state *state, const struct status_state *state_peripheral) {
     lv_obj_t *canvas = lv_obj_get_child(widget, 0);
     fill_background(canvas);
 
     // Draw widgets
     draw_output_status(canvas, state);
     draw_battery_status(canvas, state);
+    draw_peripheral_status(canvas, state_peripheral); // new
 
     // Rotate for horizontal display
     rotate_canvas(canvas, cbuf);
@@ -77,7 +78,7 @@ static void set_battery_status(struct zmk_widget_screen *widget,
 #endif /* IS_ENABLED(CONFIG_USB_DEVICE_STACK) */
     widget->state.battery = state.level;
 
-    draw_top(widget->obj, widget->cbuf, &widget->state);
+    draw_top(widget->obj, widget->cbuf, &widget->state, &widget->state_peripheral);
 }
 
 static void battery_status_update_cb(struct battery_status_state state) {
@@ -103,6 +104,39 @@ ZMK_SUBSCRIPTION(widget_battery_status, zmk_battery_state_changed);
 #if IS_ENABLED(CONFIG_USB_DEVICE_STACK)
 ZMK_SUBSCRIPTION(widget_battery_status, zmk_usb_conn_state_changed);
 #endif /* IS_ENABLED(CONFIG_USB_DEVICE_STACK) */
+
+// peripheral battery status
+static void set_peripheral_battery_status(struct zmk_widget_screen *widget,
+                                          struct battery_status_state state) {
+    widget->state.peripheral_battery = state.level; // Needs field in struct
+    draw_top(widget->obj, widget->cbuf, &widget->state, &widget->state_peripheral);
+}
+
+static void peripheral_battery_status_update_cb(struct battery_status_state state) {
+    struct zmk_widget_screen *widget;
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        set_peripheral_battery_status(widget, state);
+    }
+}
+
+static struct battery_status_state peripheral_battery_status_get_state(const zmk_event_t *eh) {
+    const struct zmk_peripheral_battery_state_changed *ev =
+        as_zmk_peripheral_battery_state_changed(eh);
+
+    return (struct battery_status_state){
+        .level = (ev != NULL) ? ev->state_of_charge : 0,
+#if IS_ENABLED(CONFIG_USB_DEVICE_STACK)
+        .usb_present = false,
+#endif
+    };
+}
+
+ZMK_DISPLAY_WIDGET_LISTENER(widget_peripheral_battery_status, struct battery_status_state,
+                            peripheral_battery_status_update_cb, peripheral_battery_status_get_state);
+
+ZMK_SUBSCRIPTION(widget_peripheral_battery_status, zmk_peripheral_battery_state_changed);
+
+// end peripheral battery status
 
 /**
  * Layer status
