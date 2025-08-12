@@ -18,3 +18,4 @@ struct peripheral_status_state {
 #endif
 
 void draw_output_status(lv_obj_t *canvas, const struct status_state *state);
+void draw_peripheral_output_status(lv_obj_t *canvas, const struct status_state *state);
