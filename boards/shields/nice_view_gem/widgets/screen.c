@@ -175,7 +175,7 @@ static void set_output_status(struct zmk_widget_screen *widget,
     widget->state.active_profile_connected = state->active_profile_connected;
     widget->state.active_profile_bonded = state->active_profile_bonded;
 
-    draw_top(widget->obj, widget->cbuf, &widget->state);
+    draw_top(widget->obj, widget->cbuf, &widget->state, &widget->state_peripheral);
     draw_bottom(widget->obj, widget->cbuf3, &widget->state);
 }
 
