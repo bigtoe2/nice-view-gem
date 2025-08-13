@@ -21,15 +21,29 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 // from peripheral
 #include <zmk/split/bluetooth/peripheral.h>
 #include <zmk/events/split_peripheral_status_changed.h>
-// --- split connection probe (works with or without the header) ---
+// --- Split connection probe compat (works across ZMK versions) ---
+#include <stdint.h>
+#include <errno.h>
+
 #if __has_include(<zmk/split/bluetooth/central.h>)
 #include <zmk/split/bluetooth/central.h>
-#else
-// Older trees or trimmed headers: forward-declare the probe we need.
-#include <stdint.h>
-extern int zmk_split_get_peripheral_battery_level(uint8_t index, uint8_t *level);
 #endif
+
+// Some ZMK versions expose this; some don't. Provide weak fallbacks so we can link.
+__attribute__((weak)) bool zmk_split_is_peripheral_connected(uint8_t idx) {
+    // Weak stub: core not providing this — assume disconnected.
+    (void)idx;
+    return false;
+}
+
+__attribute__((weak)) int zmk_split_get_peripheral_battery_level(uint8_t idx, uint8_t *level) {
+    // Weak stub: core not providing this — report "not implemented".
+    (void)idx;
+    if (level) { *level = 0; }
+    return -ENOSYS;
+}
 // -----------------------------------------------------------------
+
 
 
 #include "battery.h"
@@ -228,25 +242,27 @@ static struct peripheral_status_state peripheral_output_status_get_state(const z
         as_zmk_split_peripheral_status_changed(eh);
 
     if (ev) {
-        return (struct peripheral_status_state){
-            .connected = ev->connected,
-        };
+        return (struct peripheral_status_state){ .connected = ev->connected };
     }
 
     // No event (initial registration poll) — try to infer current connection.
     bool connected = false;
 
 #if IS_ENABLED(CONFIG_ZMK_SPLIT) && IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
-    // Probe via battery fetch: succeeds (rc == 0) only when the peripheral is connected.
-    uint8_t tmp_level = 0;
-    int rc = zmk_split_get_peripheral_battery_level(0, &tmp_level);
-    connected = (rc == 0);
+    // Prefer a direct "is connected" API if the core provides it.
+    if (zmk_split_is_peripheral_connected(0)) {
+        connected = true;
+    } else {
+        // Fallback: battery-level probe succeeds only when the peripheral is connected.
+        uint8_t tmp_level = 0;
+        int rc = zmk_split_get_peripheral_battery_level(0, &tmp_level);
+        connected = (rc == 0);
+    }
 #endif
 
-    return (struct peripheral_status_state){
-        .connected = connected,
-    };
+    return (struct peripheral_status_state){ .connected = connected };
 }
+
 
 
 
