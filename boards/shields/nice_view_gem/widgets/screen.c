@@ -231,7 +231,6 @@ static void set_peripheral_output_status(struct zmk_widget_screen *widget,
 // Called when peripheral status changes
 static void peripheral_output_status_update_cb(struct peripheral_status_state state) {
     struct zmk_widget_screen *widget;
-    const struct status_state battery = state.connected; // shorthand
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
         set_peripheral_output_status(widget, &state);
     }
