@@ -159,6 +159,22 @@ ZMK_SUBSCRIPTION(widget_peripheral_battery_status, zmk_peripheral_battery_state_
 // end peripheral battery status
 
 // connection status
+
+static void set_peripheral_output_status(struct zmk_widget_screen *widget,
+                                         const struct peripheral_status_state *state) {
+    widget->state_peripheral.connected = state->connected;
+
+    if (state->connected) {
+        /* 1) Show cached % immediately (instant UI) */
+        if (g_periph_batt_has_cache) {
+            widget->state_peripheral.battery = g_periph_batt_cached;
+        }
+        /* 2) Kick off an immediate GATT read to get the true latest value */
+    }
+
+    draw_top(widget->obj, widget->cbuf, &widget->state, &widget->state_peripheral);
+}
+
 static void set_connection(struct zmk_widget_screen *widget,
                           struct connection_status_state state) {
     widget->connected = state.connected;
@@ -256,21 +272,6 @@ ZMK_SUBSCRIPTION(widget_output_status, zmk_ble_active_profile_changed);
 /**
  * Peripheral connection (output) status
  */
-
-static void set_peripheral_output_status(struct zmk_widget_screen *widget,
-                                         const struct peripheral_status_state *state) {
-    widget->state_peripheral.connected = state->connected;
-
-    if (state->connected) {
-        /* 1) Show cached % immediately (instant UI) */
-        if (g_periph_batt_has_cache) {
-            widget->state_peripheral.battery = g_periph_batt_cached;
-        }
-        /* 2) Kick off an immediate GATT read to get the true latest value */
-    }
-
-    draw_top(widget->obj, widget->cbuf, &widget->state, &widget->state_peripheral);
-}
 
 // static struct peripheral_status_state peripheral_output_status_get_state(const zmk_event_t *eh) {
 //     const struct zmk_split_peripheral_status_changed *ev =
