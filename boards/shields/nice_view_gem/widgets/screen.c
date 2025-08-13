@@ -109,18 +109,17 @@ ZMK_SUBSCRIPTION(widget_battery_status, zmk_battery_state_changed);
 ZMK_SUBSCRIPTION(widget_battery_status, zmk_usb_conn_state_changed);
 #endif /* IS_ENABLED(CONFIG_USB_DEVICE_STACK) */
 
-// peripheral battery status
-// static void set_peripheral_battery_status(struct zmk_widget_screen *widget,
-//                                           struct battery_status_state state) {
-//     widget->state_peripheral.battery = state.level; // Needs field in struct
-//     draw_top(widget->obj, widget->cbuf, &widget->state, &widget->state_peripheral);
-// }
+peripheral battery status
+static void set_peripheral_battery_status(struct zmk_widget_screen *widget,
+                                          struct battery_status_state state) {
+    widget->state_peripheral.battery = state.level; // Needs field in struct
+    draw_top(widget->obj, widget->cbuf, &widget->state, &widget->state_peripheral);
+}
 
 static void peripheral_battery_status_update_cb(struct battery_status_state state) {
     struct zmk_widget_screen *widget;
-    const struct status_state battery = state.level; // shorthand
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
-        draw_peripheral_status(lv_obj_get_child(widget->obj, 0), battery); // new
+        set_peripheral_battery_status(widget, state);
     }
 }
 
@@ -222,19 +221,19 @@ static struct peripheral_status_state peripheral_output_status_get_state(const z
 }
 
 // Update the widget's peripheral status and trigger redraw
-// static void set_peripheral_output_status(struct zmk_widget_screen *widget,
-//                                          const struct peripheral_status_state *state) {
-//     widget->state_peripheral.connected = state->connected;
+static void set_peripheral_output_status(struct zmk_widget_screen *widget,
+                                         const struct peripheral_status_state *state) {
+    widget->state_peripheral.connected = state->connected;
 
-//     draw_top(widget->obj, widget->cbuf, &widget->state, &widget->state_peripheral);
-// }
+    draw_top(widget->obj, widget->cbuf, &widget->state, &widget->state_peripheral);
+}
 
 // Called when peripheral status changes
 static void peripheral_output_status_update_cb(struct peripheral_status_state state) {
     struct zmk_widget_screen *widget;
     const struct status_state battery = state.connected; // shorthand
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
-        draw_peripheral_output_status(lv_obj_get_child(widget->obj, 0), battery); // new
+        set_peripheral_output_status(widget, &state);
     }
 }
 
