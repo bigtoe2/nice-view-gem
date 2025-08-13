@@ -191,8 +191,7 @@ static struct connection_status_state connection_status_get_state(const zmk_even
     const struct zmk_split_peripheral_status_changed *ev =
         as_zmk_split_peripheral_status_changed(eh);
     return (struct connection_status_state){
-        .connected = (ev != NULL) ? ev->connected : zmk_split_is_peripheral_connected(0),
-    };
+        .connected = ev->connected};
 }
 
 ZMK_DISPLAY_WIDGET_LISTENER(widget_connection_status, struct connection_status_state,
