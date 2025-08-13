@@ -170,6 +170,35 @@ ZMK_SUBSCRIPTION(widget_peripheral_battery_status, zmk_peripheral_battery_state_
 
 // end peripheral battery status
 
+// connection status
+staic void set_connection(struct zwk_widget_screen *widget,
+                          struct connection_status_state state) {
+    widget->connected = state.connected;
+    uint8_t level;
+    zmk_split_get_peripheral_battery_level(0, &level);
+    set_peripheral_battery_status(widget, (struct battery_status_state){.level = level});
+
+    draw_top(widget->obj, widget->cbuf, &widget->state, &widget->state_peripheral);
+}
+static void connection_status_update_cb(struct connection_status_state state) {
+    struct zmk_widget_screen *widget;
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        set_connection(widget, state);
+    }
+}
+
+static struct connection_status_state connection_status_get_state(const zmk_event_t *eh) {
+    const struct zmk_split_peripheral_status_changed *ev =
+        as_zmk_split_peripheral_status_changed(eh);
+    return (struct connection_status_state){
+        .connected = (ev != NULL) ? ev->connected : zmk_split_is_peripheral_connected(0),
+    };
+}
+
+ZMK_DISPLAY_WIDGET_LISTENER(widget_connection_status, struct connection_status_state,
+                            connection_status_update_cb, connection_status_get_state);
+ZMK_SUBSCRIPTION(widget_connection_status, zmk_split_peripheral_status_changed);
+
 /**
  * Layer status
  **/
@@ -339,9 +368,13 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
     lv_canvas_set_buffer(bottom, widget->cbuf3, BUFFER_SIZE, BUFFER_SIZE, LV_IMG_CF_TRUE_COLOR);
 
     sys_slist_append(&widgets, &widget->node);
+
     widget_battery_status_init();
     widget_peripheral_battery_status_init();
+    widget_connection_status_init();
+
     widget_layer_status_init();
+    
     widget_output_status_init();
     widget_peripheral_status_init();
     init_peripheral_state(widget);
