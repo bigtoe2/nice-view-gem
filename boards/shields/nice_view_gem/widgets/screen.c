@@ -210,34 +210,39 @@ ZMK_SUBSCRIPTION(widget_output_status, zmk_ble_active_profile_changed);
 #endif
 
 // peripheral output status
-// Get connection status from event
-static struct peripheral_status_state peripheral_connection_status_get_state(const zmk_event_t *eh) {
-    const struct zmk_split_peripheral_status_changed *ev = as_zmk_split_peripheral_status_changed(eh);
-    return (struct peripheral_status_state){ .connected = ev->connected };
+
+// Pull the latest peripheral output state from the event payload
+static struct peripheral_status_state peripheral_output_status_get_state(const zmk_event_t *eh) {
+    const struct zmk_split_peripheral_status_changed *ev =
+        as_zmk_split_peripheral_status_changed(eh);
+
+    return (struct peripheral_status_state){
+        .connected = (ev != NULL) ? ev->connected : false,
+    };
 }
 
-// Update peripheral connection status in your screen widget state
-static void set_peripheral_connection_status(struct zmk_widget_screen *widget, struct peripheral_status_state state) {
-    widget->state_peripheral.connected = state.connected;
+// Update the widget's peripheral status and trigger redraw
+static void set_peripheral_output_status(struct zmk_widget_screen *widget,
+                                         const struct peripheral_status_state *state) {
+    widget->state_peripheral.connected = state->connected;
 
-    // Redraw top section with updated peripheral status
     draw_top(widget->obj, widget->cbuf, &widget->state, &widget->state_peripheral);
 }
 
-// Callback when connection status event received
-static void peripheral_connection_status_update_cb(struct peripheral_status_state state) {
+// Called when peripheral status changes
+static void peripheral_output_status_update_cb(struct peripheral_status_state state) {
     struct zmk_widget_screen *widget;
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
-        set_peripheral_connection_status(widget, state);
+        set_peripheral_output_status(widget, &state);
     }
 }
 
-// Register listener and subscription for peripheral connection status
-ZMK_DISPLAY_WIDGET_LISTENER(widget_peripheral_status, struct peripheral_status_state,
-                            peripheral_connection_status_update_cb, peripheral_connection_status_get_state);
+// Register widget listener for peripheral output status changes
+ZMK_DISPLAY_WIDGET_LISTENER(widget_peripheral_output_status, struct peripheral_status_state,
+                            peripheral_output_status_update_cb,
+                            peripheral_output_status_get_state);
 
-ZMK_SUBSCRIPTION(widget_peripheral_status, zmk_split_peripheral_status_changed);
-
+ZMK_SUBSCRIPTION(widget_peripheral_output_status, zmk_split_peripheral_status_changed);
 
 /**
  * WPM status
