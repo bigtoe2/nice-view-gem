@@ -137,6 +137,10 @@ ZMK_SUBSCRIPTION(widget_battery_status, zmk_usb_conn_state_changed);
 
 // peripheral battery status
 
+/* ---- Peripheral battery cache for instant UI on connect ---- */
+static uint8_t g_periph_batt_cached = 0;
+static bool    g_periph_batt_has_cache = false;
+/* ------------------------------------------------------------ */
 /* ---------- Peripheral helpers (central side only) ---------- */
 static void refresh_peripheral_battery(struct zmk_widget_screen *widget) {
     uint8_t lvl = 0;
@@ -148,10 +152,6 @@ static void refresh_peripheral_battery(struct zmk_widget_screen *widget) {
     }
 }
 
-/* ------------------------------------------------------------ */
-/* ---- Peripheral battery cache for instant UI on connect ---- */
-static uint8_t g_periph_batt_cached = 0;
-static bool    g_periph_batt_has_cache = false;
 /* ------------------------------------------------------------ */
 
 
