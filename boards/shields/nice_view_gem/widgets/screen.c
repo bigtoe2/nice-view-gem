@@ -21,7 +21,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 // from peripheral
 #include <zmk/split/bluetooth/peripheral.h>
 #include <zmk/events/split_peripheral_status_changed.h>
-#include <zmk/events/peripheral_battery_state_changed.h>
+// #include <zmk/events/peripheral_battery_state_changed.h>
 #include <zmk/split/bluetooth/central.h>
 
 // --- Split connection probe compat (works across ZMK versions) ---
