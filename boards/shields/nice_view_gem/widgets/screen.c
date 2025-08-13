@@ -294,19 +294,6 @@ ZMK_DISPLAY_WIDGET_LISTENER(widget_peripheral_status, struct peripheral_status_s
 ZMK_SUBSCRIPTION(widget_peripheral_status, zmk_split_peripheral_status_changed);
 
 
-
-/**
- * Initialization hook: if already connected at boot, prime state & battery once.
- */
-static void init_peripheral_state(struct zmk_widget_screen *widget) {
-    if (zmk_split_is_peripheral_connected(0)) {
-        struct peripheral_status_state s = { .connected = true };
-        /* Shows cached % (if any) immediately and triggers a read */
-        set_peripheral_output_status(widget, &s);
-    }
-}
-
-
 /**
  * WPM status
  **/
@@ -363,7 +350,6 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
 
     widget_output_status_init();
     widget_peripheral_status_init();
-    init_peripheral_state(widget);
     // widget_wpm_status_init();
 
     return 0;
