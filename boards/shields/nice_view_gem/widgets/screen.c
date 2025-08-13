@@ -21,7 +21,16 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 // from peripheral
 #include <zmk/split/bluetooth/peripheral.h>
 #include <zmk/events/split_peripheral_status_changed.h>
-// #include <zmk/split/bluetooth/central.h>  // for zmk_split_get_peripheral_battery_level()
+// --- split connection probe (works with or without the header) ---
+#if __has_include(<zmk/split/bluetooth/central.h>)
+#include <zmk/split/bluetooth/central.h>
+#else
+// Older trees or trimmed headers: forward-declare the probe we need.
+#include <stdint.h>
+extern int zmk_split_get_peripheral_battery_level(uint8_t index, uint8_t *level);
+#endif
+// -----------------------------------------------------------------
+
 
 #include "battery.h"
 #include "layer.h"
@@ -224,20 +233,21 @@ static struct peripheral_status_state peripheral_output_status_get_state(const z
         };
     }
 
-    // No event — try probing connection if API is available
+    // No event (initial registration poll) — try to infer current connection.
     bool connected = false;
 
 #if IS_ENABLED(CONFIG_ZMK_SPLIT) && IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
-    #if defined(CONFIG_ZMK_SPLIT_STATUS)
-    extern bool zmk_split_is_peripheral_connected(uint8_t idx);
-    connected = zmk_split_is_peripheral_connected(0);
-    #endif
+    // Probe via battery fetch: succeeds (rc == 0) only when the peripheral is connected.
+    uint8_t tmp_level = 0;
+    int rc = zmk_split_get_peripheral_battery_level(0, &tmp_level);
+    connected = (rc == 0);
 #endif
 
     return (struct peripheral_status_state){
         .connected = connected,
     };
 }
+
 
 
 
