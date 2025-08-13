@@ -139,18 +139,27 @@ ZMK_SUBSCRIPTION(widget_battery_status, zmk_usb_conn_state_changed);
 
 /* ---------- Peripheral helpers (central side only) ---------- */
 static void refresh_peripheral_battery(struct zmk_widget_screen *widget) {
-    /* Immediate BAS pull from the peripheral */
     uint8_t lvl = 0;
     int rc = zmk_split_get_peripheral_battery_level(0, &lvl);
     if (rc == 0) {
         widget->state_peripheral.battery = lvl;
+        g_periph_batt_cached = lvl;
+        g_periph_batt_has_cache = true;
     }
 }
+
 /* ------------------------------------------------------------ */
+/* ---- Peripheral battery cache for instant UI on connect ---- */
+static uint8_t g_periph_batt_cached = 0;
+static bool    g_periph_batt_has_cache = false;
+/* ------------------------------------------------------------ */
+
 
 static void set_peripheral_battery_status(struct zmk_widget_screen *widget,
                                           struct battery_status_state state) {
     widget->state_peripheral.battery = state.level;
+    g_periph_batt_cached = state.level;
+    g_periph_batt_has_cache = true;
     draw_top(widget->obj, widget->cbuf, &widget->state, &widget->state_peripheral);
 }
 
@@ -177,6 +186,7 @@ ZMK_DISPLAY_WIDGET_LISTENER(widget_peripheral_battery_status, struct battery_sta
                             peripheral_battery_status_update_cb, peripheral_battery_status_get_state);
 
 ZMK_SUBSCRIPTION(widget_peripheral_battery_status, zmk_peripheral_battery_state_changed);
+
 
 // end peripheral battery status
 
@@ -253,7 +263,6 @@ static struct peripheral_status_state peripheral_output_status_get_state(const z
     const struct zmk_split_peripheral_status_changed *ev =
         as_zmk_split_peripheral_status_changed(eh);
 
-    /* Match reference widgets: trust the split event; on initial poll (no event) show disconnected. */
     if (!ev) {
         return (struct peripheral_status_state){ .connected = false };
     }
@@ -264,8 +273,12 @@ static void set_peripheral_output_status(struct zmk_widget_screen *widget,
                                          const struct peripheral_status_state *state) {
     widget->state_peripheral.connected = state->connected;
 
-    /* On connect, immediately pull a fresh battery % (just like the ref code paths). */
     if (state->connected) {
+        /* 1) Show cached % immediately (instant UI) */
+        if (g_periph_batt_has_cache) {
+            widget->state_peripheral.battery = g_periph_batt_cached;
+        }
+        /* 2) Kick off an immediate GATT read to get the true latest value */
         refresh_peripheral_battery(widget);
     }
 
@@ -286,15 +299,18 @@ ZMK_DISPLAY_WIDGET_LISTENER(widget_peripheral_status, struct peripheral_status_s
 ZMK_SUBSCRIPTION(widget_peripheral_status, zmk_split_peripheral_status_changed);
 
 
+
 /**
  * Initialization hook: if already connected at boot, prime state & battery once.
  */
 static void init_peripheral_state(struct zmk_widget_screen *widget) {
     if (zmk_split_is_peripheral_connected(0)) {
         struct peripheral_status_state s = { .connected = true };
-        set_peripheral_output_status(widget, &s); /* pulls battery too */
+        /* Shows cached % (if any) immediately and triggers a read */
+        set_peripheral_output_status(widget, &s);
     }
 }
+
 
 /**
  * WPM status
