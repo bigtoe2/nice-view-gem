@@ -21,7 +21,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 // from peripheral
 #include <zmk/split/bluetooth/peripheral.h>
 #include <zmk/events/split_peripheral_status_changed.h>
-#include <zmk/split/bluetooth/central.h>  // for zmk_split_get_peripheral_battery_level()
+// #include <zmk/split/bluetooth/central.h>  // for zmk_split_get_peripheral_battery_level()
 
 #include "battery.h"
 #include "layer.h"
@@ -224,20 +224,21 @@ static struct peripheral_status_state peripheral_output_status_get_state(const z
         };
     }
 
-    // No event (initial registration poll) — infer current connection.
+    // No event — try probing connection if API is available
     bool connected = false;
 
 #if IS_ENABLED(CONFIG_ZMK_SPLIT) && IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
-    uint8_t tmp_level = 0;
-    int rc = zmk_split_get_peripheral_battery_level(0, &tmp_level);
-    // When the peripheral is connected, this call succeeds (rc == 0).
-    connected = (rc == 0);
+    #if defined(CONFIG_ZMK_SPLIT_STATUS)
+    extern bool zmk_split_is_peripheral_connected(uint8_t idx);
+    connected = zmk_split_is_peripheral_connected(0);
+    #endif
 #endif
 
     return (struct peripheral_status_state){
         .connected = connected,
     };
 }
+
 
 
 // Update the widget's peripheral status and trigger redraw
