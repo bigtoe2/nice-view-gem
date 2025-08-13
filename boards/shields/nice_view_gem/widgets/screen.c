@@ -42,6 +42,7 @@ static void draw_top(lv_obj_t *widget, lv_color_t cbuf[], const struct status_st
     // Draw widgets
     draw_output_status(canvas, state);
     draw_battery_status(canvas, state);
+    draw_peripheral_output_status(canvas, state_peripheral); // new
     draw_peripheral_status(canvas, state_peripheral); // new
 
     // Rotate for horizontal display
