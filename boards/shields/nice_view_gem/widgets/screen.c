@@ -238,11 +238,11 @@ static void peripheral_output_status_update_cb(struct peripheral_status_state st
 }
 
 // Register widget listener for peripheral output status changes
-ZMK_DISPLAY_WIDGET_LISTENER(widget_peripheral_output_status, struct peripheral_status_state,
+ZMK_DISPLAY_WIDGET_LISTENER(widget_peripheral_status, struct peripheral_status_state,
                             peripheral_output_status_update_cb,
                             peripheral_output_status_get_state);
 
-ZMK_SUBSCRIPTION(widget_peripheral_output_status, zmk_split_peripheral_status_changed);
+ZMK_SUBSCRIPTION(widget_peripheral_status, zmk_split_peripheral_status_changed);
 
 /**
  * WPM status
