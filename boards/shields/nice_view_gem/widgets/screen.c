@@ -110,33 +110,35 @@ ZMK_SUBSCRIPTION(widget_battery_status, zmk_usb_conn_state_changed);
 #endif /* IS_ENABLED(CONFIG_USB_DEVICE_STACK) */
 
 // peripheral battery status
-// Get connection status from event
-static struct peripheral_status_state peripheral_connection_status_get_state(const zmk_event_t *eh) {
-    const struct zmk_split_peripheral_status_changed *ev = as_zmk_split_peripheral_status_changed(eh);
-    return (struct peripheral_status_state){ .connected = ev->connected };
-}
-
-// Update peripheral connection status in your screen widget state
-static void set_peripheral_connection_status(struct zmk_widget_screen *widget, struct peripheral_status_state state) {
-    widget->state_peripheral.connected = state.connected;
-
-    // Redraw top section with updated peripheral status
+static void set_peripheral_battery_status(struct zmk_widget_screen *widget,
+                                          struct battery_status_state state) {
+    widget->state_peripheral.battery = state.level; // Needs field in struct
     draw_top(widget->obj, widget->cbuf, &widget->state, &widget->state_peripheral);
 }
 
-// Callback when connection status event received
-static void peripheral_connection_status_update_cb(struct peripheral_status_state state) {
+static void peripheral_battery_status_update_cb(struct battery_status_state state) {
     struct zmk_widget_screen *widget;
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
-        set_peripheral_connection_status(widget, state);
+        set_peripheral_battery_status(widget, state);
     }
 }
 
-// Register listener and subscription for peripheral connection status
-ZMK_DISPLAY_WIDGET_LISTENER(widget_peripheral_connection_status, struct peripheral_status_state,
-                            peripheral_connection_status_update_cb, peripheral_connection_status_get_state);
+static struct battery_status_state peripheral_battery_status_get_state(const zmk_event_t *eh) {
+    const struct zmk_peripheral_battery_state_changed *ev =
+        as_zmk_peripheral_battery_state_changed(eh);
 
-ZMK_SUBSCRIPTION(widget_peripheral_connection_status, zmk_split_peripheral_status_changed);
+    return (struct battery_status_state){
+        .level = (ev != NULL) ? ev->state_of_charge : 0,
+#if IS_ENABLED(CONFIG_USB_DEVICE_STACK)
+        .usb_present = false,
+#endif
+    };
+}
+
+ZMK_DISPLAY_WIDGET_LISTENER(widget_peripheral_battery_status, struct battery_status_state,
+                            peripheral_battery_status_update_cb, peripheral_battery_status_get_state);
+
+ZMK_SUBSCRIPTION(widget_peripheral_battery_status, zmk_peripheral_battery_state_changed);
 
 // end peripheral battery status
 
@@ -207,25 +209,33 @@ ZMK_SUBSCRIPTION(widget_output_status, zmk_ble_active_profile_changed);
 #endif
 
 // peripheral output status
-static struct peripheral_status_state get_state(const zmk_event_t *_eh) {
-    return (struct peripheral_status_state){.connected = zmk_split_bt_peripheral_is_connected()};
+// Get connection status from event
+static struct peripheral_status_state peripheral_connection_status_get_state(const zmk_event_t *eh) {
+    const struct zmk_split_peripheral_status_changed *ev = as_zmk_split_peripheral_status_changed(eh);
+    return (struct peripheral_status_state){ .connected = ev->connected };
 }
 
-static void set_connection_status(struct zmk_widget_screen *widget,
-                                  struct peripheral_status_state state) {
+// Update peripheral connection status in your screen widget state
+static void set_peripheral_connection_status(struct zmk_widget_screen *widget, struct peripheral_status_state state) {
     widget->state_peripheral.connected = state.connected;
 
+    // Redraw top section with updated peripheral status
     draw_top(widget->obj, widget->cbuf, &widget->state, &widget->state_peripheral);
 }
 
-static void peripheral_status_update_cb(struct peripheral_status_state state) {
+// Callback when connection status event received
+static void peripheral_connection_status_update_cb(struct peripheral_status_state state) {
     struct zmk_widget_screen *widget;
-    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) { set_connection_status(widget, state); }
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        set_peripheral_connection_status(widget, state);
+    }
 }
 
-ZMK_DISPLAY_WIDGET_LISTENER(widget_peripheral_status, struct peripheral_status_state,
-                            peripheral_status_update_cb, get_state)
-ZMK_SUBSCRIPTION(widget_peripheral_status, zmk_split_peripheral_status_changed);
+// Register listener and subscription for peripheral connection status
+ZMK_DISPLAY_WIDGET_LISTENER(widget_peripheral_connection_status, struct peripheral_status_state,
+                            peripheral_connection_status_update_cb, peripheral_connection_status_get_state);
+
+ZMK_SUBSCRIPTION(widget_peripheral_connection_status, zmk_split_peripheral_status_changed);
 
 
 /**
