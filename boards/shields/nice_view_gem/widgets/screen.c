@@ -172,6 +172,7 @@ static void connection_status_update_cb(struct connection_status_state state) {
     struct zmk_widget_screen *widget;
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
         set_connection(widget, state);
+        set_peripheral_output_status(widget, &state);
     }
 }
 
@@ -255,15 +256,6 @@ ZMK_SUBSCRIPTION(widget_output_status, zmk_ble_active_profile_changed);
 /**
  * Peripheral connection (output) status
  */
-static struct peripheral_status_state peripheral_output_status_get_state(const zmk_event_t *eh) {
-    const struct zmk_split_peripheral_status_changed *ev =
-        as_zmk_split_peripheral_status_changed(eh);
-
-    if (!ev) {
-        return (struct peripheral_status_state){ .connected = false };
-    }
-    return (struct peripheral_status_state){ .connected = ev->connected };
-}
 
 static void set_peripheral_output_status(struct zmk_widget_screen *widget,
                                          const struct peripheral_status_state *state) {
@@ -280,18 +272,28 @@ static void set_peripheral_output_status(struct zmk_widget_screen *widget,
     draw_top(widget->obj, widget->cbuf, &widget->state, &widget->state_peripheral);
 }
 
-static void peripheral_output_status_update_cb(struct peripheral_status_state state) {
-    struct zmk_widget_screen *widget;
-    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
-        set_peripheral_output_status(widget, &state);
-    }
-}
+// static struct peripheral_status_state peripheral_output_status_get_state(const zmk_event_t *eh) {
+//     const struct zmk_split_peripheral_status_changed *ev =
+//         as_zmk_split_peripheral_status_changed(eh);
 
-ZMK_DISPLAY_WIDGET_LISTENER(widget_peripheral_status, struct peripheral_status_state,
-                            peripheral_output_status_update_cb,
-                            peripheral_output_status_get_state);
+//     if (!ev) {
+//         return (struct peripheral_status_state){ .connected = false };
+//     }
+//     return (struct peripheral_status_state){ .connected = ev->connected };
+// }
 
-ZMK_SUBSCRIPTION(widget_peripheral_status, zmk_split_peripheral_status_changed);
+// static void peripheral_output_status_update_cb(struct peripheral_status_state state) {
+//     struct zmk_widget_screen *widget;
+//     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+//         set_peripheral_output_status(widget, &state);
+//     }
+// }
+
+// ZMK_DISPLAY_WIDGET_LISTENER(widget_peripheral_status, struct peripheral_status_state,
+//                             peripheral_output_status_update_cb,
+//                             peripheral_output_status_get_state);
+
+// ZMK_SUBSCRIPTION(widget_peripheral_status, zmk_split_peripheral_status_changed);
 
 
 /**
@@ -349,7 +351,7 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
     widget_layer_status_init();
 
     widget_output_status_init();
-    widget_peripheral_status_init();
+    // widget_peripheral_status_init();
     // widget_wpm_status_init();
 
     return 0;
