@@ -171,7 +171,7 @@ ZMK_SUBSCRIPTION(widget_peripheral_battery_status, zmk_peripheral_battery_state_
 // end peripheral battery status
 
 // connection status
-static void set_connection(struct zwk_widget_screen *widget,
+static void set_connection(struct zmk_widget_screen *widget,
                           struct connection_status_state state) {
     widget->connected = state.connected;
     uint8_t level;
