@@ -21,6 +21,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 // from peripheral
 #include <zmk/split/bluetooth/peripheral.h>
 #include <zmk/events/split_peripheral_status_changed.h>
+
 // --- Split connection probe compat (works across ZMK versions) ---
 #include <stdint.h>
 #include <errno.h>
@@ -235,8 +236,8 @@ ZMK_SUBSCRIPTION(widget_output_status, zmk_ble_active_profile_changed);
 
 // peripheral output status
 
-// Pull the latest peripheral output state from the event payload,
-// or infer it synchronously on initial poll (eh == NULL).
+// Replace your peripheral_output_status_get_state() with this:
+
 static struct peripheral_status_state peripheral_output_status_get_state(const zmk_event_t *eh) {
     const struct zmk_split_peripheral_status_changed *ev =
         as_zmk_split_peripheral_status_changed(eh);
@@ -245,35 +246,48 @@ static struct peripheral_status_state peripheral_output_status_get_state(const z
         return (struct peripheral_status_state){ .connected = ev->connected };
     }
 
-    // No event (initial registration poll) — try to infer current connection.
-    bool connected = false;
-
+    // Initial poll
 #if IS_ENABLED(CONFIG_ZMK_SPLIT) && IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
-    // Prefer a direct "is connected" API if the core provides it.
-    if (zmk_split_is_peripheral_connected(0)) {
-        connected = true;
-    } else {
-        // Fallback: battery-level probe succeeds only when the peripheral is connected.
-        uint8_t tmp_level = 0;
-        int rc = zmk_split_get_peripheral_battery_level(0, &tmp_level);
-        connected = (rc == 0);
-    }
-#endif
-
+  #if __has_include(<zmk/split/bluetooth/central.h>)
+    // If the core provides a real implementation, use it.
+    bool connected = zmk_split_is_peripheral_connected(0);
     return (struct peripheral_status_state){ .connected = connected };
+  #else
+    // No central header available — don't try to infer; wait for events.
+    return (struct peripheral_status_state){ .connected = false };
+  #endif
+#else
+    // Not a central build; this widget shouldn't infer connection here.
+    return (struct peripheral_status_state){ .connected = false };
+#endif
 }
 
 
 
 
 
-// Update the widget's peripheral status and trigger redraw
+
+// In set_peripheral_output_status(), add a battery refresh on connect:
+
 static void set_peripheral_output_status(struct zmk_widget_screen *widget,
                                          const struct peripheral_status_state *state) {
     widget->state_peripheral.connected = state->connected;
 
+#if IS_ENABLED(CONFIG_ZMK_SPLIT) && IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
+  #if __has_include(<zmk/split/bluetooth/central.h>)
+    if (state->connected) {
+        uint8_t lvl = 0;
+        int rc = zmk_split_get_peripheral_battery_level(0, &lvl);
+        if (rc == 0) {
+            widget->state_peripheral.battery = lvl;
+        }
+    }
+  #endif
+#endif
+
     draw_top(widget->obj, widget->cbuf, &widget->state, &widget->state_peripheral);
 }
+
 
 // Called when peripheral status changes
 static void peripheral_output_status_update_cb(struct peripheral_status_state state) {
