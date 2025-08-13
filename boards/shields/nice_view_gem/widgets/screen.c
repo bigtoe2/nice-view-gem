@@ -121,18 +121,6 @@ ZMK_SUBSCRIPTION(widget_battery_status, zmk_usb_conn_state_changed);
 static uint8_t g_periph_batt_cached = 0;
 static bool    g_periph_batt_has_cache = false;
 /* ------------------------------------------------------------ */
-/* ---------- Peripheral helpers (central side only) ---------- */
-static void refresh_peripheral_battery(struct zmk_widget_screen *widget) {
-    uint8_t lvl = 0;
-    int rc = zmk_split_get_peripheral_battery_level(0, &lvl);
-    if (rc == 0) {
-        widget->state_peripheral.battery = lvl;
-        g_periph_batt_cached = lvl;
-        g_periph_batt_has_cache = true;
-    }
-}
-
-/* ------------------------------------------------------------ */
 
 
 static void set_peripheral_battery_status(struct zmk_widget_screen *widget,
@@ -287,7 +275,6 @@ static void set_peripheral_output_status(struct zmk_widget_screen *widget,
             widget->state_peripheral.battery = g_periph_batt_cached;
         }
         /* 2) Kick off an immediate GATT read to get the true latest value */
-        refresh_peripheral_battery(widget);
     }
 
     draw_top(widget->obj, widget->cbuf, &widget->state, &widget->state_peripheral);
