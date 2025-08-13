@@ -25,27 +25,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 // --- Split connection probe compat (works across ZMK versions) ---
 #include <stdint.h>
 #include <errno.h>
-
-#if __has_include(<zmk/split/bluetooth/central.h>)
 #include <zmk/split/bluetooth/central.h>
-#endif
-
-// Some ZMK versions expose this; some don't. Provide weak fallbacks so we can link.
-__attribute__((weak)) bool zmk_split_is_peripheral_connected(uint8_t idx) {
-    // Weak stub: core not providing this — assume disconnected.
-    (void)idx;
-    return false;
-}
-
-__attribute__((weak)) int zmk_split_get_peripheral_battery_level(uint8_t idx, uint8_t *level) {
-    // Weak stub: core not providing this — report "not implemented".
-    (void)idx;
-    if (level) { *level = 0; }
-    return -ENOSYS;
-}
-// -----------------------------------------------------------------
-
-
 
 #include "battery.h"
 #include "layer.h"
