@@ -232,10 +232,10 @@ static void peripheral_connection_status_update_cb(struct peripheral_status_stat
 }
 
 // Register listener and subscription for peripheral connection status
-ZMK_DISPLAY_WIDGET_LISTENER(widget_peripheral_connection_status, struct peripheral_status_state,
+ZMK_DISPLAY_WIDGET_LISTENER(widget_peripheral_status, struct peripheral_status_state,
                             peripheral_connection_status_update_cb, peripheral_connection_status_get_state);
 
-ZMK_SUBSCRIPTION(widget_peripheral_connection_status, zmk_split_peripheral_status_changed);
+ZMK_SUBSCRIPTION(widget_peripheral_status, zmk_split_peripheral_status_changed);
 
 
 /**
