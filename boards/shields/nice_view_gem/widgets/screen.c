@@ -119,7 +119,7 @@ ZMK_SUBSCRIPTION(widget_battery_status, zmk_usb_conn_state_changed);
 static void peripheral_battery_status_update_cb(struct battery_status_state state) {
     struct zmk_widget_screen *widget;
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
-        draw_peripheral_status(lv_obj_get_child(widget, 0), state_peripheral); // new
+        draw_peripheral_status(*(lv_obj_get_child(widget, 0)), state_peripheral); // new
     }
 }
 
@@ -232,7 +232,7 @@ static struct peripheral_status_state peripheral_output_status_get_state(const z
 static void peripheral_output_status_update_cb(struct peripheral_status_state state) {
     struct zmk_widget_screen *widget;
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
-        draw_peripheral_output_status(lv_obj_get_child(widget, 0), state_peripheral); // new
+        draw_peripheral_output_status(*(lv_obj_get_child(widget, 0)), state_peripheral); // new
     }
 }
 
