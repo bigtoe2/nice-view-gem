@@ -56,7 +56,7 @@ static void set_hid_indicators(struct zmk_widget_hid_indicators *widget, struct 
     // lv_label_set_text(label, text);
     // lv_obj_align(label, LV_ALIGN_OUT_TOP_LEFT, 3, 22); // point
     lv_draw_label_dsc_t label_dsc;
-    init_label_dsc(&label_dsc, LVGL_FOREGROUND, &pixel_operator_mono, LV_TEXT_ALIGN_CENTER);
+    init_label_dsc(&label_dsc, LVGL_BACKGROUND, &pixel_operator_mono, LV_TEXT_ALIGN_CENTER);
     lv_obj_t *canvas = lv_canvas_create(widget->obj);
     lv_obj_align(canvas, LV_ALIGN_TOP_RIGHT, BUFFER_OFFSET_MIDDLE, 0); // point
     lv_canvas_set_buffer(canvas, widget->cbuf, BUFFER_SIZE, BUFFER_SIZE, LV_IMG_CF_TRUE_COLOR);
