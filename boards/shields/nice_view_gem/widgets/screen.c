@@ -362,7 +362,6 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
     // widget_wpm_status_init();
 
     // hid
-    draw_middle(widget->obj, widget->cbuf2, &widget->state);
     zmk_widget_hid_indicators_init(&hid_indicators_widget, middle);
 
     return 0;
