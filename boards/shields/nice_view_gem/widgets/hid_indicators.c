@@ -60,7 +60,7 @@ static void set_hid_indicators(struct zmk_widget_hid_indicators *widget, struct 
     lv_obj_t *canvas = lv_canvas_create(widget->obj);
     lv_obj_align(canvas, LV_ALIGN_TOP_RIGHT, BUFFER_OFFSET_MIDDLE, 0); // point
     lv_canvas_set_buffer(canvas, widget->cbuf, BUFFER_SIZE, BUFFER_SIZE, LV_IMG_CF_TRUE_COLOR);
-    lv_cavas_fill_bg(canvas, LVGL_BACKGROUND, LV_OPA_COVER);
+    fill_background(canvas);
     lv_canvas_draw_text(widget->obj, 20, 0, 25, &label_dsc, text);
 }
 
