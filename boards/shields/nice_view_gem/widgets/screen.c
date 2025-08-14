@@ -63,7 +63,7 @@ static void draw_middle(lv_obj_t *widget, lv_color_t cbuf[], const struct status
     fill_background(canvas);
 
     // Draw widgets
-    draw_wpm_status(canvas, state);
+    // draw_wpm_status(canvas, state);
 
     // Rotate for horizontal display
     rotate_canvas(canvas, cbuf);
@@ -180,7 +180,7 @@ static void set_peripheral_output_status(struct zmk_widget_screen *widget,
 }
 
 static void set_connection(struct zmk_widget_screen *widget,
-                          struct connection_status_state state) {
+                          struct peripheral_status_state state) {
     widget->connected = state.connected;
     uint8_t level;
     zmk_split_get_peripheral_battery_level(0, &level);
@@ -188,7 +188,7 @@ static void set_connection(struct zmk_widget_screen *widget,
 
     draw_top(widget->obj, widget->cbuf, &widget->state, &widget->state_peripheral);
 }
-static void connection_status_update_cb(struct connection_status_state state) {
+static void connection_status_update_cb(struct peripheral_status_state state) {
     struct zmk_widget_screen *widget;
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
         set_connection(widget, state);
@@ -196,16 +196,16 @@ static void connection_status_update_cb(struct connection_status_state state) {
     }
 }
 
-static struct connection_status_state connection_status_get_state(const zmk_event_t *eh) {
+static struct peripheral_status_state connection_status_get_state(const zmk_event_t *eh) {
     const struct zmk_split_peripheral_status_changed *ev =
         as_zmk_split_peripheral_status_changed(eh);
-    return (struct connection_status_state){
+    return (struct peripheral_status_state){
         .connected = ev->connected};
     // can probably also just do, without the const, just this line:
     // return (struct connection_status_state){.connected = zmk_split_bt_peripheral_is_connected()};
 }
 
-ZMK_DISPLAY_WIDGET_LISTENER(widget_connection_status, struct connection_status_state,
+ZMK_DISPLAY_WIDGET_LISTENER(widget_connection_status, struct peripheral_status_state,
                             connection_status_update_cb, connection_status_get_state);
 ZMK_SUBSCRIPTION(widget_connection_status, zmk_split_peripheral_status_changed);
 

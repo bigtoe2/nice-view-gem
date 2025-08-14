@@ -21,7 +21,6 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #define LED_SLCK 0x04
 
 
-const lv_img_dsc_t *luna_imgs_bark_90[] = {&dog_bark1_90, &dog_bark2_90};
 static lv_obj_t *hid_anim =
     NULL; // Variable estática para almacenar el objeto animado
 
