@@ -66,7 +66,7 @@ static void draw_middle(lv_obj_t *widget, lv_color_t cbuf[], const struct status
     // draw_wpm_status(canvas, state);
 
     // Rotate for horizontal display
-    rotate_canvas(canvas, cbuf);
+    // rotate_canvas(canvas, cbuf);
 }
 
 static void draw_bottom(lv_obj_t *widget, lv_color_t cbuf[], const struct status_state *state) {
@@ -362,6 +362,7 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
     // widget_wpm_status_init();
 
     // hid
+    draw_middle(widget->obj, widget->cbuf2, &widget->state);
     zmk_widget_hid_indicators_init(&hid_indicators_widget, middle);
 
     return 0;
