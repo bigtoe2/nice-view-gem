@@ -31,8 +31,7 @@ struct hid_indicators_state {
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
 // /* WORK FINE
-static void set_hid_indicators(lv_obj_t *label, struct hid_indicators_state
-state) {
+static void set_hid_indicators(struct zmk_widget_hid_indicators *widget, struct hid_indicators_state state) {
 
     char text[14] = {};
     bool caps_lock_on = false;
@@ -51,11 +50,18 @@ state) {
     }
     if (caps_lock_on) {
         // strncat(text, "CAPS", 4);
-        strncat(text, ".", 1);
+        strncat(text, "CAPSSSSS", 1);
     }
 
-    lv_label_set_text(label, text);
-    lv_obj_align(label, LV_ALIGN_OUT_TOP_LEFT, 3, 22); // point
+    // lv_label_set_text(label, text);
+    // lv_obj_align(label, LV_ALIGN_OUT_TOP_LEFT, 3, 22); // point
+    lv_draw_label_dsc_t label_dsc;
+    init_label_dsc(&label_dsc, LVGL_FOREGROUND, &pixel_operator_mono, LV_TEXT_ALIGN_LEFT);
+    lv_obj_t *canvas = lv_canvas_create(widget->obj);
+    lv_obj_align(canvas, LV_ALIGN_TOP_RIGHT, BUFFER_OFFSET_MIDDLE, 0); // point
+    lv_canvas_set_buffer(canvas, widget->cbuf, BUFFER_SIZE, BUFFER_SIZE, LV_IMG_CF_TRUE_COLOR);
+    lv_cavas_fill_bg(canvas, LVGL_BACKGROUND, LV_OPA_COVER);
+    lv_canvas_draw_text(widget->obj, 0, 1, 25, &label_dsc, text);
 }
 
 // static void set_hid_indicators(lv_obj_t *label,
@@ -104,7 +110,7 @@ state) {
 void hid_indicators_update_cb(struct hid_indicators_state state) {
   struct zmk_widget_hid_indicators *widget;
   SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
-    set_hid_indicators(widget->obj, state);
+    set_hid_indicators(widget, state);
   }
 }
 
@@ -132,7 +138,6 @@ int zmk_widget_hid_indicators_init(struct zmk_widget_hid_indicators *widget,
   return 0;
 }
 
-lv_obj_t *
-zmk_widget_hid_indicators_obj(struct zmk_widget_hid_indicators *widget) {
+lv_obj_t *zmk_widget_hid_indicators_obj(struct zmk_widget_hid_indicators *widget) {
   return widget->obj;
 }
