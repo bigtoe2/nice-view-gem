@@ -34,6 +34,10 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "screen.h"
 #include "wpm.h"
 
+// hid
+#include "hid_indicators.h"
+static struct zmk_widget_hid_indicators hid_indicators_widget;
+
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
 /**
@@ -197,6 +201,8 @@ static struct connection_status_state connection_status_get_state(const zmk_even
         as_zmk_split_peripheral_status_changed(eh);
     return (struct connection_status_state){
         .connected = ev->connected};
+    // can probably also just do, without the const, just this line:
+    // return (struct connection_status_state){.connected = zmk_split_bt_peripheral_is_connected()};
 }
 
 ZMK_DISPLAY_WIDGET_LISTENER(widget_connection_status, struct connection_status_state,
@@ -354,6 +360,9 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
     widget_output_status_init();
     // widget_peripheral_status_init();
     // widget_wpm_status_init();
+
+    // hid
+    zmk_widget_hid_indicators_init(&hid_indicators_widget, middle);
 
     return 0;
 }
