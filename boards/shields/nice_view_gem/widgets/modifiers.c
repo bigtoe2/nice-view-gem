@@ -44,7 +44,7 @@ static void set_hid_indicators(struct zmk_widget_hid_indicators *widget, struct 
     }
 
     
-    lv_label_set_text(widget->label, idx ? text : "");
+    lv_label_set_text(widget->label, caps_lock_on ? text : "");
     // rotate_canvas(canvas, widget->cbuf);
 }
 
