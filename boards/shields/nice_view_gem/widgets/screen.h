@@ -12,7 +12,6 @@ struct zmk_widget_screen {
     lv_color_t cbuf3[BUFFER_SIZE * BUFFER_SIZE];
     struct status_state state;
     struct status_state state_peripheral; // new
-    bool connected; // for peripheral connection
 };
 
 int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent);
