@@ -47,6 +47,17 @@ static struct k_timer mod_status_timer;
 int zmk_widget_mod_status_init(struct zmk_widget_mod_status *widget, lv_obj_t *parent)
 {
     fill_background(parent);
+
+    parent = lv_obj_create(NULL);
+    lv_obj_set_style_bg_color(parent, LVGL_BACKGROUND, LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(parent, 255, LV_PART_MAIN);
+
+    lv_style_init(&global_style);
+    lv_style_set_text_color(&global_style, LVGL_FOREGROUND);
+    lv_style_set_text_letter_space(&global_style, 1);
+    lv_style_set_text_line_space(&global_style, 1);
+    lv_obj_add_style(parent, &global_style, LV_PART_MAIN);
+
     widget->obj = lv_obj_create(parent);
     lv_obj_set_size(widget->obj, 68, 68);
 

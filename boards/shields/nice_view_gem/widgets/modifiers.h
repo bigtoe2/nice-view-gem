@@ -2,6 +2,7 @@
 
 #include <lvgl.h>
 #include <zmk/display.h>
+#include "util.h"
 
 struct zmk_widget_mod_status
 {
