@@ -38,6 +38,9 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "hid_indicators.h"
 static struct zmk_widget_hid_indicators hid_indicators_widget;
 
+#include "modifers.h"
+static struct zmk_widget_mod_status mod_widget;
+
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
 /**
@@ -330,11 +333,11 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
 
     lv_obj_t *top = lv_canvas_create(widget->obj);
     lv_obj_align(top, LV_ALIGN_TOP_RIGHT, 0, 0);
-    lv_canvas_set_buffer(top, widget->cbuf2, 2*BUFFER_SIZE, BUFFER_SIZE, LV_IMG_CF_TRUE_COLOR);
+    lv_canvas_set_buffer(top, widget->cbuf, BUFFER_SIZE, BUFFER_SIZE, LV_IMG_CF_TRUE_COLOR);
 
-    // lv_obj_t *middle = lv_canvas_create(widget->obj);
-    // lv_obj_align(middle, LV_ALIGN_TOP_RIGHT, BUFFER_OFFSET_MIDDLE, 0);
-    // lv_canvas_set_buffer(middle, widget->cbuf2, BUFFER_SIZE, BUFFER_SIZE, LV_IMG_CF_TRUE_COLOR);
+    lv_obj_t *middle = lv_canvas_create(widget->obj);
+    lv_obj_align(middle, LV_ALIGN_TOP_RIGHT, BUFFER_OFFSET_MIDDLE, 0);
+    lv_canvas_set_buffer(middle, widget->cbuf2, BUFFER_SIZE, BUFFER_SIZE, LV_IMG_CF_TRUE_COLOR);
 
     lv_obj_t *bottom = lv_canvas_create(widget->obj);
     lv_obj_align(bottom, LV_ALIGN_TOP_RIGHT, BUFFER_OFFSET_BOTTOM, 0);
@@ -354,6 +357,9 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
 
     // hid
     // zmk_widget_hid_indicators_init(&hid_indicators_widget, middle);
+
+    zmk_widget_mod_status_init(&mod_widget, middle);
+    lv_obj_align(zmk_widget_mod_status_obj(&mod_widget), LV_ALIGN_CENTER, BUFFER_OFFSET_MIDDLE, 35);
 
     return 0;
 }
