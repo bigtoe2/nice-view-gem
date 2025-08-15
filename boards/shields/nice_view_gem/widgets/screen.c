@@ -354,7 +354,7 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
 
     // hid
     zmk_widget_hid_indicators_init(&hid_indicators_widget, middle);
-    lv_obj_align(zmk_widget_mod_status_obj(&hid_indicators_widget), LV_ALIGN_CENTER, BUFFER_OFFSET_MIDDLE, 35);
+    lv_obj_align(zmk_widget_hid_indicators_obj(&hid_indicators_widget), LV_ALIGN_CENTER, BUFFER_OFFSET_MIDDLE, 35);
 
     return 0;
 }
