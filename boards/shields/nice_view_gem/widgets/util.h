@@ -34,7 +34,7 @@ struct peripheral_state {
     uint8_t battery;
     bool connected;
     bool charging; // to be removed
-}
+};
 
 void to_uppercase(char *str);
 void rotate_canvas(lv_obj_t *canvas, lv_color_t cbuf[]);
