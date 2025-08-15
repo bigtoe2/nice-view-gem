@@ -20,6 +20,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 struct hid_indicators_state {
   uint8_t hid_indicators;
 };
+static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
 static void set_hid_indicators(struct zmk_widget_hid_indicators *widget, struct hid_indicators_state state) {
 
