@@ -38,9 +38,6 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "hid_indicators.h"
 static struct zmk_widget_hid_indicators hid_indicators_widget;
 
-#include "modifiers.h"
-static struct zmk_widget_mod_status mod_widget;
-
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
 /**
@@ -356,10 +353,8 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
     // widget_wpm_status_init();
 
     // hid
-    // zmk_widget_hid_indicators_init(&hid_indicators_widget, middle);
-
-    zmk_widget_mod_status_init(&mod_widget, middle);
-    lv_obj_align(zmk_widget_mod_status_obj(&mod_widget), LV_ALIGN_CENTER, BUFFER_OFFSET_MIDDLE, 35);
+    zmk_widget_hid_indicators_init(&hid_indicators_widget, middle);
+    lv_obj_align(zmk_widget_mod_status_obj(&hid_indicators_widget), LV_ALIGN_CENTER, BUFFER_OFFSET_MIDDLE, 35);
 
     return 0;
 }
