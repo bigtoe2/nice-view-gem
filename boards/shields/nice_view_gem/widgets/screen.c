@@ -44,7 +44,7 @@ static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
  * Draw buffers
  **/
 
-static void draw_top(lv_obj_t *widget, lv_color_t cbuf[], const struct status_state *state, const struct status_state *state_peripheral) {
+static void draw_top(lv_obj_t *widget, lv_color_t cbuf[], const struct status_state *state, const struct peripheral_state *state_peripheral) {
     lv_obj_t *canvas = lv_obj_get_child(widget, 0);
     fill_background(canvas);
 

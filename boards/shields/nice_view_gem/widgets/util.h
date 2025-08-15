@@ -26,11 +26,15 @@ struct status_state {
     uint8_t layer_index;
     const char *layer_label;
     uint8_t wpm[10];
-    bool connected;
 #else
     bool connected;
 #endif
 };
+struct peripheral_state {
+    uint8_t battery;
+    bool connected;
+    bool charging; // to be removed
+}
 
 void to_uppercase(char *str);
 void rotate_canvas(lv_obj_t *canvas, lv_color_t cbuf[]);

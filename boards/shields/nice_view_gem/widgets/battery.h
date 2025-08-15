@@ -11,4 +11,4 @@ struct battery_status_state {
 };
 
 void draw_battery_status(lv_obj_t *canvas, const struct status_state *state);
-void draw_peripheral_status(lv_obj_t *canvas, const struct status_state *state);
+void draw_peripheral_status(lv_obj_t *canvas, const struct peripheral_state *state);

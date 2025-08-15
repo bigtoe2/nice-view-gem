@@ -113,7 +113,7 @@ static void draw_ble_connected_peripheral(lv_obj_t *canvas) {
     lv_canvas_draw_img(canvas, 6, 18, &bt, &img_dsc);
 }
 
-void draw_peripheral_output_status(lv_obj_t *canvas, const struct status_state *state) {
+void draw_peripheral_output_status(lv_obj_t *canvas, const struct peripheral_state *state) {
     lv_draw_rect_dsc_t rect_white_dsc;
     init_rect_dsc(&rect_white_dsc, LVGL_FOREGROUND);
 
