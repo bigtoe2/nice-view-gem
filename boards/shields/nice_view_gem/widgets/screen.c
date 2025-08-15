@@ -38,7 +38,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "hid_indicators.h"
 static struct zmk_widget_hid_indicators hid_indicators_widget;
 
-#include "modifers.h"
+#include "modifiers.h"
 static struct zmk_widget_mod_status mod_widget;
 
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
