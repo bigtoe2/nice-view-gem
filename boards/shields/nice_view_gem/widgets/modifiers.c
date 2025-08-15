@@ -51,7 +51,8 @@ int zmk_widget_mod_status_init(struct zmk_widget_mod_status *widget, lv_obj_t *p
     parent = lv_obj_create(NULL);
     lv_obj_set_style_bg_color(parent, LVGL_BACKGROUND, LV_PART_MAIN);
     lv_obj_set_style_bg_opa(parent, 255, LV_PART_MAIN);
-
+    
+    lv_style_t global_style;
     lv_style_init(&global_style);
     lv_style_set_text_color(&global_style, LVGL_FOREGROUND);
     lv_style_set_text_letter_space(&global_style, 1);
